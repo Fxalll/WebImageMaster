@@ -1196,7 +1196,12 @@
 
       if (clone && clone.parentNode) clone.remove();
       zoomedClones.delete(el);
-    }, 450); // 延长一点时间，确保模糊动画播完再移除DOM
+
+      // 非钉图模式下，彻底清空容器内残留的控制面板等DOM，防止幽灵点击
+      if (!zoomPinModeConfig) {
+        zoomContainer.innerHTML = "";
+      }
+    }, 450);
   }
 
   // 滚轮缩放 - 钉图模式下精准定位到鼠标下的图
