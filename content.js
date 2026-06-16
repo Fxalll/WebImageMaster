@@ -1480,8 +1480,21 @@
     "mousedown",
     (e) => {
       if (e.button !== 1) return;
-      if (window.imgHidenSet === null) return;
-      // ★【修改2】阅兵模式下的中键由遮罩层事件处理，此处不干预
+      const isRedLight = window.imgHidenSet === null;
+
+      // 红灯状态下，hover和click逻辑上等同于middle
+      let effectiveZoomMode = zoomModeConfig;
+      if (
+        isRedLight &&
+        (zoomModeConfig === "hover" || zoomModeConfig === "click")
+      ) {
+        effectiveZoomMode = "middle";
+      }
+
+      // 红灯状态下，如果有效模式是关，直接返回（保留原生中键行为，如打开链接）
+      if (isRedLight && effectiveZoomMode === "off") return;
+
+      // 阅兵模式下的中键由遮罩层事件处理，此处不干预
       if (isParadeMode) return;
 
       const clone = getCloneAtPoint(e.clientX, e.clientY);
@@ -1494,26 +1507,67 @@
       }
 
       let targetEl = null;
-      imageControls.forEach((btn, el) => {
-        if (el._isZoomed) return;
-        const rect = el.getBoundingClientRect();
-        const margin = 10;
-        if (
-          e.clientX >= rect.left - margin &&
-          e.clientX <= rect.right + margin &&
-          e.clientY >= rect.top - margin &&
-          e.clientY <= rect.bottom + margin
-        ) {
-          targetEl = el;
+      if (isRedLight) {
+        // 红灯状态：动态遍历查找目标图片（因为此时 imageControls 被清空了）
+        const allEls = document.querySelectorAll(
+          'img, svg, .nopic-has-bg, [style*="background-image"]',
+        );
+        for (const el of allEls) {
+          if (
+            el._isZoomed ||
+            el.classList.contains("nopic-clone") ||
+            el.classList.contains("nopic-parade-clone")
+          )
+            continue;
+          const rect = el.getBoundingClientRect();
+          const margin = 10;
+          if (
+            e.clientX >= rect.left - margin &&
+            e.clientX <= rect.right + margin &&
+            e.clientY >= rect.top - margin &&
+            e.clientY <= rect.bottom + margin
+          ) {
+            const bg = window.getComputedStyle(el).backgroundImage;
+            const isTarget =
+              el.tagName === "IMG" ||
+              el.tagName === "SVG" ||
+              (bg && bg !== "none" && bg.includes("url"));
+            const hasText =
+              (el.tagName === "DIV" || el.tagName === "SPAN") &&
+              el.innerText != null &&
+              el.innerText.trim().length > 0;
+            if (isTarget && rect.width > 15 && rect.height > 15 && !hasText) {
+              targetEl = el;
+              break;
+            }
+          }
         }
-      });
+      } else {
+        // 绿灯状态：从控件记录中查找
+        imageControls.forEach((btn, el) => {
+          if (el._isZoomed) return;
+          const rect = el.getBoundingClientRect();
+          const margin = 10;
+          if (
+            e.clientX >= rect.left - margin &&
+            e.clientX <= rect.right + margin &&
+            e.clientY >= rect.top - margin &&
+            e.clientY <= rect.bottom + margin
+          ) {
+            targetEl = el;
+          }
+        });
+      }
 
-      if (targetEl && zoomModeConfig === "middle") {
+      if (targetEl && effectiveZoomMode === "middle") {
         e.preventDefault();
         e.stopPropagation();
+        // 红灯状态允许直接放大；绿灯状态按原逻辑判断
         const isHidden = targetEl.dataset.isHidden === "true";
         const shouldZoom =
-          hoverShowImgConfig || (!hoverShowImgConfig && !isHidden);
+          isRedLight ||
+          hoverShowImgConfig ||
+          (!hoverShowImgConfig && !isHidden);
         if (shouldZoom && !targetEl._isZoomed && !zoomCooldown) {
           const btn = imageControls.get(targetEl);
           const zoomBtn = imageZoomControls.get(targetEl);
@@ -1538,6 +1592,16 @@
     "auxclick",
     (e) => {
       if (e.button !== 1) return;
+      const isRedLight = window.imgHidenSet === null;
+
+      // 红灯状态下，hover和click逻辑上等同于middle
+      let effectiveZoomMode = zoomModeConfig;
+      if (
+        isRedLight &&
+        (zoomModeConfig === "hover" || zoomModeConfig === "click")
+      ) {
+        effectiveZoomMode = "middle";
+      }
 
       const clone = getCloneAtPoint(e.clientX, e.clientY);
       if (clone) {
@@ -1547,20 +1611,61 @@
       }
 
       let hitImage = false;
-      imageControls.forEach((btn, el) => {
-        const rect = el.getBoundingClientRect();
-        const margin = 10;
-        if (
-          e.clientX >= rect.left - margin &&
-          e.clientX <= rect.right + margin &&
-          e.clientY >= rect.top - margin &&
-          e.clientY <= rect.bottom + margin
-        ) {
-          hitImage = true;
+      if (isRedLight) {
+        // 红灯状态：动态遍历查找目标图片
+        const allEls = document.querySelectorAll(
+          'img, svg, .nopic-has-bg, [style*="background-image"]',
+        );
+        for (const el of allEls) {
+          if (
+            el.classList.contains("nopic-clone") ||
+            el.classList.contains("nopic-parade-clone")
+          )
+            continue;
+          const rect = el.getBoundingClientRect();
+          const margin = 10;
+          if (
+            e.clientX >= rect.left - margin &&
+            e.clientX <= rect.right + margin &&
+            e.clientY >= rect.top - margin &&
+            e.clientY <= rect.bottom + margin
+          ) {
+            const bg = window.getComputedStyle(el).backgroundImage;
+            const isTarget =
+              el.tagName === "IMG" ||
+              el.tagName === "SVG" ||
+              (bg && bg !== "none" && bg.includes("url"));
+            const hasText =
+              (el.tagName === "DIV" || el.tagName === "SPAN") &&
+              el.innerText != null &&
+              el.innerText.trim().length > 0;
+            if (isTarget && rect.width > 15 && rect.height > 15 && !hasText) {
+              hitImage = true;
+              break;
+            }
+          }
         }
-      });
+      } else {
+        imageControls.forEach((btn, el) => {
+          const rect = el.getBoundingClientRect();
+          const margin = 10;
+          if (
+            e.clientX >= rect.left - margin &&
+            e.clientX <= rect.right + margin &&
+            e.clientY >= rect.top - margin &&
+            e.clientY <= rect.bottom + margin
+          ) {
+            hitImage = true;
+          }
+        });
+      }
 
-      if (hitImage) {
+      // 红灯状态下且有效模式为中键，也需阻止超链接新标签页打开
+      if (
+        hitImage &&
+        (window.imgHidenSet !== null ||
+          (isRedLight && effectiveZoomMode === "middle"))
+      ) {
         e.preventDefault();
         e.stopPropagation();
       }
@@ -2212,19 +2317,39 @@
     settingsSubmenu
       .querySelector('[data-key="zoomPinMode"]')
       .classList.toggle("on", zoomPinModeConfig);
+    const hoverZoomBtn = settingsSubmenu.querySelector(
+      '.nopic-range-btn[data-zoom="hover"]',
+    );
     const clickZoomBtn = settingsSubmenu.querySelector(
       '.nopic-range-btn[data-zoom="click"]',
     );
-    if (clickZoomBtn)
-      clickZoomBtn.style.display = hoverShowImgConfig ? "none" : "";
-    if (hoverShowImgConfig && zoomModeConfig === "click") {
-      zoomModeConfig = "hover";
-      setLocalConfig("zoomMode", zoomModeConfig);
+    const isRedLight = window.imgHidenSet === null;
+
+    let activeZoomMode = zoomModeConfig;
+
+    if (isRedLight) {
+      // 红灯状态：隐藏悬停和点击选项
+      if (hoverZoomBtn) hoverZoomBtn.style.display = "none";
+      if (clickZoomBtn) clickZoomBtn.style.display = "none";
+      // 如果原始配置是悬停或点击，只在UI上临时显示为中键，绝不改写 zoomModeConfig，保留原始记忆
+      if (zoomModeConfig === "hover" || zoomModeConfig === "click") {
+        activeZoomMode = "middle";
+      }
+    } else {
+      // 绿灯状态：恢复显示逻辑
+      if (hoverZoomBtn) hoverZoomBtn.style.display = "";
+      if (clickZoomBtn)
+        clickZoomBtn.style.display = hoverShowImgConfig ? "none" : "";
+      if (hoverShowImgConfig && zoomModeConfig === "click") {
+        zoomModeConfig = "hover";
+        setLocalConfig("zoomMode", zoomModeConfig);
+        activeZoomMode = "hover";
+      }
     }
     settingsSubmenu
       .querySelectorAll(".nopic-range-btn[data-zoom]")
       .forEach((btn) =>
-        btn.classList.toggle("active", btn.dataset.zoom === zoomModeConfig),
+        btn.classList.toggle("active", btn.dataset.zoom === activeZoomMode),
       );
     settingsSubmenu
       .querySelectorAll(".nopic-range-btn[data-leave]")
@@ -2981,6 +3106,7 @@
         localStorage.setItem("nopicValueList", list.join(","));
       }
       updateLampState();
+      updateAllUI(); // 新增：切换灯状态时刷新UI，动态显隐放大选项
       updateContent();
     }
     localStorage.setItem(
@@ -3031,6 +3157,7 @@
       imgHiden();
       window.imgHidenSet = setInterval(imgHiden, 500);
       updateLampState();
+      updateAllUI(); // 新增：切换灯状态时刷新UI，动态显隐放大选项
       updateContent();
     }
   })();
