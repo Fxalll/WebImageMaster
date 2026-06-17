@@ -1,20 +1,3 @@
-// ==UserScript==
-// @name         网页图片大师 — 摸鱼神器 | 显隐切换 | 中心缩放 | 多图钉图 | 阅兵阵列 | 悬停预览 | 统计面板
-// @version      101
-// @description  优雅方块倒计时；防误触静止触发；滚轮缩放/拖动放大图；放大离开方式选项；钉图模式
-// @author       fxalll
-// @match        *://*/*
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_addStyle
-// @run-at       document-body
-// @license      MIT
-// @namespace    https://greasyfork.org/users/1043548
-// @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB4PSIzIiB5PSIzIiB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHJ4PSIyIiByeT0iMiI+PC9yZWN0PjxjaXJjbGUgY3g9IjguNSIgY3k9IjguNSIgcj0iMS41Ij48L2NpcmNsZT48cG9seWdvbiBwb2ludHM9IjIxIDE1IDE2IDEwIDUgMjEiPjwvcG9seWdvbj48L3N2Zz4=
-// @downloadURL https://update.greasyfork.org/scripts/496216/%E7%BD%91%E9%A1%B5%E5%9B%BE%E7%89%87%E5%A4%A7%E5%B8%88%20%E2%80%94%20%E6%91%B8%E9%B1%BC%E7%A5%9E%E5%99%A8%20%7C%20%E6%98%BE%E9%9A%90%E5%88%87%E6%8D%A2%20%7C%20%E4%B8%AD%E5%BF%83%E7%BC%A9%E6%94%BE%20%7C%20%E5%A4%9A%E5%9B%BE%E9%92%89%E5%9B%BE%20%7C%20%E9%98%85%E5%85%B5%E9%98%B5%E5%88%97%20%7C%20%E6%82%AC%E5%81%9C%E9%A2%84%E8%A7%88%20%7C%20%E7%BB%9F%E8%AE%A1%E9%9D%A2%E6%9D%BF.user.js
-// @updateURL https://update.greasyfork.org/scripts/496216/%E7%BD%91%E9%A1%B5%E5%9B%BE%E7%89%87%E5%A4%A7%E5%B8%88%20%E2%80%94%20%E6%91%B8%E9%B1%BC%E7%A5%9E%E5%99%A8%20%7C%20%E6%98%BE%E9%9A%90%E5%88%87%E6%8D%A2%20%7C%20%E4%B8%AD%E5%BF%83%E7%BC%A9%E6%94%BE%20%7C%20%E5%A4%9A%E5%9B%BE%E9%92%89%E5%9B%BE%20%7C%20%E9%98%85%E5%85%B5%E9%98%B5%E5%88%97%20%7C%20%E6%82%AC%E5%81%9C%E9%A2%84%E8%A7%88%20%7C%20%E7%BB%9F%E8%AE%A1%E9%9D%A2%E6%9D%BF.meta.js
-// ==/UserScript==
-
 (function () {
   "use strict";
 
@@ -655,7 +638,8 @@
         clone.style.top = "0";
         clone.style.width = "100%";
         clone.style.height = "100%";
-        clone.style.boxShadow = "0 8px 30px rgba(0,0,0,0.4)";
+        clone.style.filter = "drop-shadow(0 8px 24px rgba(0,0,0,0.5))";
+        clone.style.boxShadow = "none";
         clone.style.setProperty("z-index", "1", "important");
 
         // 尺寸标签 - 显示图片在页面的渲染尺寸
@@ -704,8 +688,8 @@
               wrapper.style.top = tp.top + "px";
               wrapper.style.width = tp.width + "px";
               wrapper.style.height = tp.height + "px";
-              clone.style.boxShadow =
-                "0 0 0 1px rgba(255,255,255,0.1), 0 6px 24px rgba(0,0,0,0.45)";
+              clone.style.filter = "drop-shadow(0 8px 24px rgba(0,0,0,0.5))";
+              clone.style.boxShadow = "none";
             },
           );
         });
@@ -883,7 +867,8 @@
         wrapper.style.top = flyTop + "px";
         wrapper.style.width = curRect.width + "px";
         wrapper.style.height = curRect.height + "px";
-        clone.style.boxShadow = "0 0 0 rgba(0,0,0,0)";
+        clone.style.filter = "none";
+        clone.style.boxShadow = "none";
         clone.style.pointerEvents = "none";
       },
     );
@@ -972,7 +957,8 @@
     clone.style.top = flyTop + "px";
     clone.style.width = curRect.width + "px";
     clone.style.height = curRect.height + "px";
-    clone.style.boxShadow = "0 0 0 rgba(0,0,0,0)";
+    clone.style.filter = "none";
+    clone.style.boxShadow = "none";
     clone.style.pointerEvents = "none";
 
     setTimeout(() => {
@@ -1037,7 +1023,8 @@
     clone.style.top = rect.top + "px";
     clone.style.width = rect.width + "px";
     clone.style.height = rect.height + "px";
-    clone.style.boxShadow = "0 8px 30px rgba(0,0,0,0.4)";
+    clone.style.filter = "drop-shadow(0 15px 30px rgba(0,0,0,0.6))";
+    clone.style.boxShadow = "none";
 
     const vw = window.innerWidth * 0.9;
     const vh = window.innerHeight * 0.9;
@@ -1115,9 +1102,8 @@
         clone.style.top = targetTop + "px";
         clone.style.width = targetWidth + "px";
         clone.style.height = targetHeight + "px";
-        clone.style.boxShadow = zoomPinModeConfig
-          ? "0 0 0 1px rgba(255,255,255,0.2), 0 15px 50px rgba(0,0,0,0.8)"
-          : "0 25px 80px rgba(0,0,0,0.5)";
+        clone.style.filter = "drop-shadow(0 15px 30px rgba(0,0,0,0.6))";
+        clone.style.boxShadow = "none";
       });
     });
   }
@@ -1155,7 +1141,8 @@
         clone.style.width = rect.width + "px";
         clone.style.height = rect.height + "px";
         clone.style.opacity = "0";
-        clone.style.boxShadow = "0 0 0 rgba(0,0,0,0)";
+        clone.style.filter = "none";
+        clone.style.boxShadow = "none";
       } else {
         // === 新增逻辑：原图位置无效，原地高斯模糊+透明度降低 ===
         const easing = "cubic-bezier(0.4, 0, 0.2, 1)";
