@@ -1,5 +1,7 @@
 ## 网页图片大师 — 摸鱼神器
 
+浏览器拓展点击安装：https://microsoftedge.microsoft.com/addons/detail/pmgpklpfinapegpcnoigkllhbgnnphdg
+
 > **永久免费 · 本地运行 · 开源 · MIT 协议**
 
 一个优雅的网页图片管理工具，让你在浏览网页时自由控制图片的显示与隐藏，支持多种交互方式和丰富的统计面板，是工作间隙"摸鱼"的绝佳伴侣。
